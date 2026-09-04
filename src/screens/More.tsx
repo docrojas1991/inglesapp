@@ -308,7 +308,10 @@ export function Settings() {
               <div className="flex flex-wrap gap-2">
                 {[
                   { n: "Groq", url: "https://api.groq.com/openai/v1", m: "llama-3.3-70b-versatile" },
+                  { n: "Grok (xAI)", url: "https://api.x.ai/v1", m: "grok-2-latest" },
+                  { n: "DeepSeek", url: "https://api.deepseek.com", m: "deepseek-chat" },
                   { n: "OpenAI", url: "https://api.openai.com/v1", m: "gpt-4o-mini" },
+                  { n: "OpenRouter", url: "https://openrouter.ai/api/v1", m: "meta-llama/llama-3.3-70b-instruct:free" },
                   { n: "Ollama local", url: "http://localhost:11434/v1", m: "llama3.1" },
                 ].map((p) => (
                   <button key={p.n} onClick={() => updateSettings({ ai: { ...s.ai, baseUrl: p.url, model: p.m } })}

@@ -96,12 +96,15 @@ export function localTutorReply(q: string, phrases: Phrase[], progress: Record<s
 /* ---------------- custom OpenAI-compatible provider ---------------- */
 
 export async function askCustom(cfg: AiSettings, history: AiMsg[], question: string): Promise<string> {
-  const base = cfg.baseUrl.trim().replace(/\/+$/, "");
-  if (!base) throw new Error("Falta la URL del proveedor");
+  let endpoint = cfg.baseUrl.trim().replace(/\/+$/, "");
+  if (!endpoint) throw new Error("Falta la URL del proveedor");
+  if (!endpoint.endsWith("/chat/completions")) {
+    endpoint = `${endpoint}/chat/completions`;
+  }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 15000);
   try {
-    const res = await fetch(`${base}/chat/completions`, {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
