@@ -307,7 +307,8 @@ export function Settings() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {[
-                  { n: "Groq", url: "https://api.groq.com/openai/v1", m: "llama-3.3-70b-versatile" },
+                  { n: "Groq", url: "https://api.groq.com/openai/v1", m: "openai/gpt-oss-120b" },
+                  { n: "Groq Mini", url: "https://api.groq.com/openai/v1", m: "groq/compound-mini" },
                   { n: "Grok (xAI)", url: "https://api.x.ai/v1", m: "grok-2-latest" },
                   { n: "DeepSeek", url: "https://api.deepseek.com", m: "deepseek-chat" },
                   { n: "OpenAI", url: "https://api.openai.com/v1", m: "gpt-4o-mini" },

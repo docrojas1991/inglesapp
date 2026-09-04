@@ -122,10 +122,23 @@ export async function askCustom(cfg: AiSettings, history: AiMsg[], question: str
       }),
       signal: ctrl.signal,
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+      let errDetail = "";
+      try {
+        const errJson = await res.json();
+        errDetail = errJson?.error?.message || JSON.stringify(errJson);
+      } catch {
+        try {
+          errDetail = (await res.text()).slice(0, 100);
+        } catch {
+          /* noop */
+        }
+      }
+      throw new Error(`HTTP ${res.status}${errDetail ? `: ${errDetail}` : ""} (${endpoint})`);
+    }
     const json = await res.json();
     const text = json?.choices?.[0]?.message?.content;
-    if (!text) throw new Error("Respuesta vacía");
+    if (!text) throw new Error("Respuesta vacía del proveedor");
     return String(text);
   } finally {
     clearTimeout(timer);
