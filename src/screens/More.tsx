@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useApp } from "../store";
 import { ACHIEVEMENTS } from "../lib/data";
 import { computeStats } from "../lib/engine";
+import { askCustom } from "../lib/ai";
 import { BarChart, Button, Card, Chip, Modal, ProgressBar, Segmented, StatDelta, Toggle, cx } from "../ui";
 import {
   Award, BookOpen, CalendarDays, Clock, Download, Ear, Flame, HeartPulse, LogOut, MessagesSquare,
@@ -167,6 +168,24 @@ export function Settings() {
   const s = data.settings;
   const [raw, setRaw] = useState("");
   const [wipeAsk, setWipeAsk] = useState(false);
+  const [aiTest, setAiTest] = useState<{ state: "idle" | "testing" | "ok" | "error"; ms?: number; msg?: string }>({ state: "idle" });
+
+  const testAi = async () => {
+    setAiTest({ state: "testing" });
+    const t0 = performance.now();
+    try {
+      const reply = await askCustom(s.ai, [], "Responde solo: OK");
+      const ms = Math.round(performance.now() - t0);
+      setAiTest({ state: "ok", ms, msg: reply.length > 60 ? reply.slice(0, 60) + "…" : reply });
+      toast("Conexión con el proveedor confirmada", "pine");
+    } catch (e) {
+      const msg = e instanceof Error && e.name === "AbortError"
+        ? "Tiempo de espera agotado (15 s). Revisa la URL y tu red."
+        : e instanceof Error ? e.message : "No se pudo conectar.";
+      setAiTest({ state: "error", msg });
+      toast("La prueba de conexión falló", "clay");
+    }
+  };
 
   const download = () => {
     const blob = new Blob([exportData()], { type: "application/json" });
@@ -297,6 +316,30 @@ export function Settings() {
                     {p.n}
                   </button>
                 ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <Button size="sm" variant="outline" onClick={testAi} disabled={aiTest.state === "testing" || !s.ai.baseUrl.trim()}>
+                  {aiTest.state === "testing" ? (
+                    <span className="flex items-center gap-2">
+                      <span className="flex items-end gap-0.5">
+                        {[0, 1, 2].map((i) => <span key={i} className="eq-bar h-3 w-0.5 rounded-full bg-current" style={{ animationDelay: `${i * 0.15}s` }} />)}
+                      </span>
+                      Probando…
+                    </span>
+                  ) : (
+                    <><Zap size={13} /> Probar conexión</>
+                  )}
+                </Button>
+                {aiTest.state === "ok" && (
+                  <span className="anim-pop flex items-center gap-1.5 rounded-full bg-pine-100 px-3 py-1 font-mono text-xs font-bold text-pine-700 dark:bg-pine-900/60 dark:text-pine-300">
+                    ✓ Conectado · {aiTest.ms} ms{aiTest.msg ? ` · “${aiTest.msg}”` : ""}
+                  </span>
+                )}
+                {aiTest.state === "error" && (
+                  <span className="anim-pop max-w-xs rounded-full bg-clay-100 px-3 py-1 text-xs font-semibold text-clay-600 dark:bg-clay-500/15 dark:text-clay-400">
+                    {aiTest.msg}
+                  </span>
+                )}
               </div>
               <p className="text-xs text-faint">Si el proveedor falla, el tutor local responde automáticamente — nunca te quedas sin ayuda.</p>
             </div>
