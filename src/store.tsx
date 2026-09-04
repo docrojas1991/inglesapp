@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type {
-  Attempt, ExType, Phrase, RouteId, SessionConfig, SessionSummary, Settings,
+  AiMsg, Attempt, ExType, Phrase, RouteId, SessionConfig, SessionSummary, Settings,
   StudySession, UserAccount, UserData, Verdict,
 } from "./lib/types";
 import {
@@ -48,6 +48,8 @@ interface AppCtx {
   conversationScore: (id: string, score: number) => void;
   exportData: () => string;
   wipeProgress: () => void;
+  recordPron: () => void;
+  setAiChat: (msgs: AiMsg[]) => void;
 }
 
 const Ctx = createContext<AppCtx | null>(null);
@@ -355,6 +357,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  const recordPron = useCallback(() => {
+    mutate((cur) => ({ ...cur, pronCount: (cur.pronCount ?? 0) + 1 }));
+  }, [mutate]);
+
+  const setAiChat = useCallback((msgs: AiMsg[]) => {
+    mutate((cur) => ({ ...cur, aiChat: msgs.slice(-40) }));
+  }, [mutate]);
+
   const value: AppCtx = {
     user,
     data: data ?? (emptyDataFallback()),
@@ -370,6 +380,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     recordExercise, recordSession, completeLesson, setModuleTest,
     toggleFavorite, setNote, resetPhrase, togglePause, reportPhrase,
     updateSettings, finishOnboarding, importContent, conversationScore, exportData, wipeProgress,
+    recordPron, setAiChat,
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
@@ -378,10 +389,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 function emptyDataFallback(): UserData {
   return {
     version: 1, onboarded: false,
-    settings: { dailyGoalMinutes: 10, newPerDay: 6, focus: "balanced", level: "intermediate", audioAutoplay: true, audioRate: "normal", speakingEnabled: true, darkMode: false },
+    settings: { dailyGoalMinutes: 10, newPerDay: 6, focus: "balanced", level: "intermediate", audioAutoplay: true, audioRate: "normal", speakingEnabled: true, darkMode: false, ai: { provider: "local", baseUrl: "", apiKey: "", model: "gpt-4o-mini" } },
     progress: {}, history: [], attempts: [], achievements: {}, favorites: [], notes: {},
     reported: [], paused: [], lessonsDone: [], moduleTests: {}, customPhrases: [],
-    conversationBest: {}, dailyLog: {}, streak: { current: 0, best: 0, last: "" }, totalXp: 0,
+    conversationBest: {}, dailyLog: {}, aiChat: [], pronCount: 0,
+    streak: { current: 0, best: 0, last: "" }, totalXp: 0,
   };
 }
 

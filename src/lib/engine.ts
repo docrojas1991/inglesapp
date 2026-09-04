@@ -531,6 +531,7 @@ export interface Stats {
   speakingAccuracy: number;
   everydayAccuracy: number;
   medicalAccuracy: number;
+  streetAccuracy: number;
   delayedAccuracy: number;
   dueToday: number;
   weakCount: number;
@@ -624,6 +625,7 @@ export function computeStats(data: UserData, phrases: Phrase[], now = Date.now()
     speakingAccuracy: acc((a) => a.ex === "speaking" || a.ex === "conversation"),
     everydayAccuracy: acc((a) => a.domain === "everyday"),
     medicalAccuracy: acc((a) => a.domain === "medical"),
+    streetAccuracy: acc((a) => a.domain === "street"),
     delayedAccuracy: acc((a) => {
       const p = data.progress[a.phraseId];
       return !!p && (p.interval ?? 0) >= 1;
@@ -686,6 +688,8 @@ export function checkAchievements(data: UserData, phrases: Phrase[]): string[] {
     "xp-1000": data.totalXp >= 1000,
     "longterm-1": longTerm >= 1,
     "convo-3": doneConvos >= 3,
+    "pron-first": (data.pronCount ?? 0) >= 1,
+    "street-8": phrases.filter((p) => p.domain === "street" && (data.progress[p.id]?.mastery ?? 0) >= 60).length >= 8,
   };
   for (const [id, ok] of Object.entries(rules)) if (ok && !has(id)) unlocked.push(id);
   return unlocked;
@@ -703,6 +707,12 @@ export function phrasesOfModule(moduleId: number, custom: Phrase[]): Phrase[] {
 
 export function moduleUnlocked(moduleId: number, data: UserData, phrases: Phrase[]): boolean {
   if (moduleId === 1) return true;
+  if (moduleId === 11) {
+    // street talk unlocks once fundamentals (Module 1) are all seen or its test passed
+    if (data.moduleTests[1]?.passed) return true;
+    const m1 = phrases.filter((p) => p.module === 1);
+    return m1.length > 0 && m1.every((p) => (data.progress[p.id]?.timesSeen ?? 0) > 0);
+  }
   const prev = data.moduleTests[moduleId - 1];
   if (prev?.passed) return true;
   const prevPhrases = phrases.filter((p) => p.module === moduleId - 1);
@@ -735,4 +745,60 @@ export function nextReviewLabel(p: PhraseProgress | undefined, now = Date.now())
   if (diff <= 0) return "Due now";
   if (diff < DAY_MS) return `in ${Math.max(1, Math.round(diff / 3_600_000))}h`;
   return `in ${Math.ceil(diff / DAY_MS)}d`;
+}
+
+/* ---------------- Pronunciation scoring ----------------
+   Aligns the mic transcript with the target phrase using a
+   fuzzy longest-common-subsequence so an accent is never
+   penalized — only real word drops / substitutions are. */
+
+export interface PronResult {
+  score: number;
+  words: { word: string; hit: boolean }[];
+}
+
+export function scorePronunciation(transcript: string, target: string): PronResult {
+  const norm = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9' ]/g, "").replace(/\s+/g, " ").trim();
+  const t = norm(target).split(" ").filter(Boolean);
+  const s = norm(transcript).split(" ").filter(Boolean);
+  if (!t.length) return { score: 0, words: [] };
+  if (!s.length) return { score: 0, words: t.map((w) => ({ word: w, hit: false })) };
+
+  const dist = (a: string, b: string): number => {
+    const m = a.length, n = b.length;
+    const dp = Array.from({ length: m + 1 }, (_, i) => {
+      const row = new Array<number>(n + 1).fill(0);
+      row[0] = i;
+      return row;
+    });
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++)
+      for (let j = 1; j <= n; j++)
+        dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return dp[m][n];
+  };
+
+  const close = (a: string, b: string): boolean => {
+    if (a === b) return true;
+    if (Math.abs(a.length - b.length) > 2) return false;
+    if (a.length >= 5 && (a.includes(b) || b.includes(a))) return true;
+    return dist(a, b) <= Math.max(1, Math.floor(Math.min(a.length, b.length) / 3));
+  };
+
+  const n = t.length, m = s.length;
+  const dp = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--)
+    for (let j = m - 1; j >= 0; j--)
+      dp[i][j] = close(t[i], s[j]) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+
+  const hit = new Array<boolean>(n).fill(false);
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (close(t[i], s[j])) { hit[i] = true; i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
+    else j++;
+  }
+  return { score: Math.round((dp[0][0] / n) * 100), words: t.map((w, k) => ({ word: w, hit: hit[k] })) };
 }

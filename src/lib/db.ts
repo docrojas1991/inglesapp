@@ -23,6 +23,7 @@ export function defaultSettings(): Settings {
     audioRate: "normal",
     speakingEnabled: true,
     darkMode: false,
+    ai: { provider: "local", baseUrl: "", apiKey: "", model: "gpt-4o-mini" },
   };
 }
 
@@ -44,6 +45,8 @@ export function emptyData(settings?: Partial<Settings>): UserData {
     customPhrases: [],
     conversationBest: {},
     dailyLog: {},
+    aiChat: [],
+    pronCount: 0,
     streak: { current: 0, best: 0, last: "" },
     totalXp: 0,
   };
@@ -339,6 +342,34 @@ export function makeDemoData(): UserData {
     "mastered-10": new Date(now - 5 * DAY_MS).toISOString(),
   };
   data.conversationBest = { "cv-checkin": 83 };
+  data.pronCount = 4;
+
+  /* street module — realistic spread for the demo user */
+  set("p61", {
+    mastery: 78, interval: 14, ease: 2.5, reps: 7, consec: 4, timesSeen: 8, correct: 7, incorrect: 1,
+    firstLearned: now - 18 * DAY_MS, lastReviewed: now - 2 * DAY_MS, nextReview: now + 6 * DAY_MS,
+    lastIntervalDays: 7, exTypes: { en_es: 2, es_en: 2, speaking: 1, meaning: 1 },
+  });
+  set("p62", {
+    mastery: 64, interval: 7, ease: 2.4, reps: 5, consec: 2, timesSeen: 6, correct: 5, incorrect: 1,
+    firstLearned: now - 12 * DAY_MS, lastReviewed: now - 1 * DAY_MS, nextReview: now + 3 * DAY_MS,
+    lastIntervalDays: 3, exTypes: { en_es: 2, fill: 1, speaking: 1 },
+  });
+  set("p63", {
+    mastery: 46, interval: 3, ease: 2.2, reps: 4, consec: 1, timesSeen: 5, correct: 3, incorrect: 2,
+    firstLearned: now - 8 * DAY_MS, lastReviewed: now - 3 * DAY_MS, nextReview: now - 0.5 * DAY_MS,
+    lastIntervalDays: 2, exTypes: { en_es: 1, rebuild: 1 },
+  });
+  set("p64", {
+    mastery: 26, interval: 1, ease: 2.0, reps: 2, consec: 1, timesSeen: 3, correct: 2, incorrect: 1,
+    firstLearned: now - 2 * DAY_MS, lastReviewed: now - 1.2 * DAY_MS, nextReview: now + 0.3 * DAY_MS,
+    lastIntervalDays: 1, exTypes: { en_es: 1, meaning: 1 },
+  });
+  set("p65", {
+    mastery: 15, interval: MIN10_DEMO, ease: 1.7, reps: 2, consec: 0, lapses: 2, timesSeen: 4, correct: 1, incorrect: 3,
+    firstLearned: now - 3 * DAY_MS, lastReviewed: now - 0.6 * DAY_MS, nextReview: now - 0.2 * DAY_MS,
+    lastIntervalDays: 0.5, exTypes: { en_es: 1 },
+  });
   return data;
 }
 

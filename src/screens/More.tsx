@@ -105,6 +105,10 @@ export function History() {
                 <ProgressBar value={stats.medicalAccuracy} tone="med" className="mt-1 h-1.5" />
               </div>
               <div>
+                <div className="flex justify-between text-xs font-semibold"><span className="flex items-center gap-1"><MessagesSquare size={12} /> Street</span><span className="font-mono">{stats.streetAccuracy || "—"}%</span></div>
+                <ProgressBar value={stats.streetAccuracy} tone="clay" className="mt-1 h-1.5" />
+              </div>
+              <div>
                 <div className="flex justify-between text-xs font-semibold"><span className="flex items-center gap-1"><CalendarDays size={12} /> Delayed recall (7-day)</span><span className="font-mono">{stats.delayedAccuracy || "—"}%</span></div>
                 <ProgressBar value={stats.delayedAccuracy} tone="gold" className="mt-1 h-1.5" />
               </div>
@@ -239,6 +243,64 @@ export function Settings() {
               <Toggle on={s.darkMode} onChange={(v) => updateSettings({ darkMode: v })} label="Dark mode" />
             </Row>
           </div>
+        </Card>
+
+        <Card className="anim-rise p-5">
+          <h3 className="flex items-center gap-2 font-display text-base font-bold"><MessagesSquare size={16} className="text-clay-500" /> Tutor IA — proveedor</h3>
+          <p className="mt-1 text-sm text-mute dark:text-faint">
+            El tutor flotante usa esta configuración: tutor local (sin conexión, experto en el curso) o cualquier
+            proveedor compatible con OpenAI — Groq, OpenRouter, OpenAI u Ollama local.
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {([
+              { v: "local" as const, t: "Tutor local", d: "Offline · explica frases, patrones y pronunciación del curso." },
+              { v: "custom" as const, t: "Proveedor personalizado", d: "Cualquier endpoint /chat/completions." },
+            ]).map((o) => (
+              <button key={o.v} onClick={() => updateSettings({ ai: { ...s.ai, provider: o.v } })}
+                className={cx("btn-press focus-ring rounded-xl border-2 p-3.5 text-left transition-colors",
+                  s.ai.provider === o.v ? "border-clay-400 bg-clay-100/50 dark:border-clay-500/50 dark:bg-clay-500/10" : "border-line hover:border-clay-400/50 dark:border-nline")}>
+                <p className="text-sm font-extrabold">{o.t}</p>
+                <p className="mt-0.5 text-xs text-mute dark:text-faint">{o.d}</p>
+              </button>
+            ))}
+          </div>
+          {s.ai.provider === "custom" && (
+            <div className="anim-rise mt-4 space-y-3">
+              <div>
+                <p className="text-xs font-bold text-mute dark:text-faint">Base URL del proveedor</p>
+                <input value={s.ai.baseUrl} onChange={(e) => updateSettings({ ai: { ...s.ai, baseUrl: e.target.value } })}
+                  placeholder="https://api.groq.com/openai/v1"
+                  className="focus-ring mt-1 w-full rounded-xl border-2 border-line bg-paper/60 px-3 py-2.5 font-mono text-sm focus:border-clay-400 dark:border-nline dark:bg-night/60" />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs font-bold text-mute dark:text-faint">Modelo</p>
+                  <input value={s.ai.model} onChange={(e) => updateSettings({ ai: { ...s.ai, model: e.target.value } })}
+                    placeholder="llama-3.3-70b-versatile"
+                    className="focus-ring mt-1 w-full rounded-xl border-2 border-line bg-paper/60 px-3 py-2.5 font-mono text-sm focus:border-clay-400 dark:border-nline dark:bg-night/60" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-mute dark:text-faint">API key (solo en tu navegador)</p>
+                  <input type="password" value={s.ai.apiKey} onChange={(e) => updateSettings({ ai: { ...s.ai, apiKey: e.target.value } })}
+                    placeholder="gsk_… / sk-… / vacío para Ollama"
+                    className="focus-ring mt-1 w-full rounded-xl border-2 border-line bg-paper/60 px-3 py-2.5 font-mono text-sm focus:border-clay-400 dark:border-nline dark:bg-night/60" />
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { n: "Groq", url: "https://api.groq.com/openai/v1", m: "llama-3.3-70b-versatile" },
+                  { n: "OpenAI", url: "https://api.openai.com/v1", m: "gpt-4o-mini" },
+                  { n: "Ollama local", url: "http://localhost:11434/v1", m: "llama3.1" },
+                ].map((p) => (
+                  <button key={p.n} onClick={() => updateSettings({ ai: { ...s.ai, baseUrl: p.url, model: p.m } })}
+                    className="btn-press focus-ring rounded-full border border-line px-3 py-1.5 font-mono text-xs font-bold text-mute hover:border-clay-400 hover:text-clay-600 dark:border-nline dark:text-faint dark:hover:text-clay-400">
+                    {p.n}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-faint">Si el proveedor falla, el tutor local responde automáticamente — nunca te quedas sin ayuda.</p>
+            </div>
+          )}
         </Card>
 
         <Card className="anim-rise p-5">

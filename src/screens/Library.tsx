@@ -195,7 +195,7 @@ function PhraseDetail({ phrase, onClose }: { phrase: Phrase; onClose: () => void
 export function Library() {
   const { phrases, data, toggleFavorite } = useApp();
   const [q, setQ] = useState("");
-  const [domain, setDomain] = useState<"all" | "everyday" | "medical">("all");
+  const [domain, setDomain] = useState<"all" | "everyday" | "medical" | "street">("all");
   const [mod, setMod] = useState(0);
   const [stateF, setStateF] = useState<"all" | PhraseState>("all");
   const [favOnly, setFavOnly] = useState(false);
@@ -244,13 +244,14 @@ export function Library() {
           <option value="all">Any state</option>
           {STATE_ORDER.map((s) => <option key={s} value={s}>{s.replace(/_/g, " ")}</option>)}
         </select>
-        <button onClick={() => setDomain(domain === "all" ? "everyday" : domain === "everyday" ? "medical" : "all")}
+        <button onClick={() => setDomain(domain === "all" ? "everyday" : domain === "everyday" ? "medical" : domain === "medical" ? "street" : "all")}
           className={cx("btn-press focus-ring flex items-center gap-1.5 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold",
             domain === "medical" ? "border-med-400 bg-med-100 text-med-600 dark:border-med-500/40 dark:bg-med-500/15 dark:text-med-400"
-              : domain === "everyday" ? "border-pine-400 bg-pine-50 text-pine-700 dark:border-pine-700 dark:bg-pine-900/40 dark:text-pine-300"
-                : "border-line bg-panel text-mute dark:border-nline dark:bg-carbon")}>
+              : domain === "street" ? "border-gold-300 bg-gold-100 text-gold-600 dark:border-gold-400/40 dark:bg-gold-400/15 dark:text-gold-300"
+                : domain === "everyday" ? "border-pine-400 bg-pine-50 text-pine-700 dark:border-pine-700 dark:bg-pine-900/40 dark:text-pine-300"
+                  : "border-line bg-panel text-mute dark:border-nline dark:bg-carbon")}>
           {domain === "medical" ? <Stethoscope size={14} /> : <BookOpen size={14} />}
-          {domain === "all" ? "Both domains" : domain}
+          {domain === "all" ? "All domains" : domain}
         </button>
         <button onClick={() => setFavOnly(!favOnly)}
           className={cx("btn-press focus-ring flex items-center gap-1.5 rounded-xl border-2 px-3 py-2.5 text-sm font-semibold",
@@ -305,6 +306,7 @@ const FILTERS: { id: string; label: string }[] = [
   { id: "mastered", label: "Mastered" },
   { id: "medical", label: "Medical" },
   { id: "everyday", label: "Everyday" },
+  { id: "street", label: "Street" },
   { id: "favorites", label: "Favorites" },
 ];
 
@@ -323,6 +325,7 @@ export function ReviewCenter() {
       case "mastered": return (pr?.mastery ?? 0) >= 75;
       case "medical": return p.domain === "medical";
       case "everyday": return p.domain === "everyday";
+      case "street": return p.domain === "street";
       case "favorites": return data.favorites.includes(p.id);
       default: return true;
     }

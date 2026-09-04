@@ -8,12 +8,14 @@ import { PracticeScreen } from "./screens/Practice";
 import { Library, ReviewCenter } from "./screens/Library";
 import { Modules } from "./screens/Modules";
 import { Conversations } from "./screens/Conversations";
+import { StreetScreen } from "./screens/Street";
+import { AiTutor } from "./screens/AiTutor";
 import { History, Settings } from "./screens/More";
 import { buildDailyPlan, todayKey } from "./lib/engine";
 import { Ring, cx } from "./ui";
 import {
   BookOpen, Clock, Flame, Languages, LayoutDashboard, LibraryBig, Menu, MessagesSquare,
-  Moon, Play, Settings as SettingsIcon, Sun, TrendingUp, X, Zap,
+  Mic, Moon, Play, Settings as SettingsIcon, Sun, TrendingUp, X, Zap,
 } from "lucide-react";
 import { useState } from "react";
 import type { RouteId } from "./lib/types";
@@ -21,6 +23,7 @@ import type { RouteId } from "./lib/types";
 const NAV: { id: RouteId; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Today", icon: <LayoutDashboard size={17} /> },
   { id: "modules", label: "Modules", icon: <BookOpen size={17} /> },
+  { id: "street", label: "Calle", icon: <Mic size={17} /> },
   { id: "review", label: "Review", icon: <TrendingUp size={17} /> },
   { id: "library", label: "Library", icon: <LibraryBig size={17} /> },
   { id: "conversations", label: "Conversations", icon: <MessagesSquare size={17} /> },
@@ -139,6 +142,7 @@ function Shell() {
       <main className="relative z-10 pt-0 lg:pl-56">
         {route === "dashboard" && <Dashboard />}
         {route === "modules" && <Modules />}
+        {route === "street" && <StreetScreen />}
         {route === "review" && <ReviewCenter />}
         {route === "library" && <Library />}
         {route === "conversations" && <Conversations />}
@@ -187,6 +191,7 @@ function Shell() {
         </div>
       )}
 
+      <AiTutor />
       {practice && <PracticeScreen />}
       <ToastHost toasts={toasts} dismiss={dismissToast} />
     </div>

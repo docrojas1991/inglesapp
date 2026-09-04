@@ -1,0 +1,7 @@
+services:
+  fluencia:
+    build: .
+    container_name: fluencia
+    restart: unless-stopped
+    ports:
+      - "8080:80"

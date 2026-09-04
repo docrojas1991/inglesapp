@@ -109,12 +109,12 @@ export function ProgressBar({ value, className, tone = "pine" }: { value: number
 }
 
 export function Ring({ value, size = 56, stroke = 6, tone = "pine", label, sub }: {
-  value: number; size?: number; stroke?: number; tone?: "pine" | "gold" | "med"; label?: ReactNode; sub?: ReactNode;
+  value: number; size?: number; stroke?: number; tone?: "pine" | "gold" | "med" | "clay"; label?: ReactNode; sub?: ReactNode;
 }) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const pct = Math.min(100, Math.max(0, value));
-  const color = tone === "gold" ? "var(--color-gold-400)" : tone === "med" ? "var(--color-med-500)" : "var(--color-pine-500)";
+  const color = tone === "gold" ? "var(--color-gold-400)" : tone === "med" ? "var(--color-med-500)" : tone === "clay" ? "var(--color-clay-500)" : "var(--color-pine-500)";
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
