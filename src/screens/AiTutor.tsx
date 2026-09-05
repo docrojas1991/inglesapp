@@ -53,7 +53,7 @@ export function AiTutor() {
       <button
         onClick={() => setOpen((o) => !o)}
         className={cx(
-          "btn-press focus-ring fixed bottom-20 right-4 z-40 flex h-13 w-13 items-center justify-center rounded-full shadow-pop lg:bottom-6 lg:right-6",
+          "btn-press focus-ring fixed bottom-[calc(5.2rem+env(safe-area-inset-bottom,0px))] right-4 z-40 flex h-13 w-13 items-center justify-center rounded-full shadow-pop lg:bottom-6 lg:right-6",
           open ? "bg-ink text-paper dark:bg-snow dark:text-night" : "bg-clay-500 text-white hover:bg-clay-600",
         )}
         style={{ height: 52, width: 52 }}
@@ -68,7 +68,7 @@ export function AiTutor() {
       </button>
 
       {open && (
-        <div className="anim-pop fixed bottom-[5.5rem] right-2 z-40 flex max-h-[70vh] w-[min(24rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-pop lg:bottom-24 lg:right-6 dark:border-nline dark:bg-carbon">
+        <div className="anim-pop fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] right-2 z-40 flex max-h-[calc(100dvh-7rem-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px))] w-[min(24rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-pop lg:bottom-24 lg:right-6 dark:border-nline dark:bg-carbon">
           {/* header */}
           <div className="flex items-center gap-2.5 border-b border-line px-4 py-3 dark:border-nline">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-clay-500 text-white"><Bot size={15} /></span>

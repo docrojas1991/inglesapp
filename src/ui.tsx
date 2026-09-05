@@ -145,7 +145,7 @@ export function Modal({ open, onClose, children, wide }: { open: boolean; onClos
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-0 backdrop-blur-[2px] sm:items-center sm:p-6 dark:bg-black/60" onClick={onClose}>
       <div
         className={cx(
-          "anim-pop max-h-[92vh] w-full overflow-y-auto rounded-t-3xl border border-line bg-panel p-6 shadow-pop sm:rounded-3xl dark:border-nline dark:bg-carbon",
+          "anim-pop max-h-[92vh] w-full overflow-y-auto rounded-t-3xl border border-line bg-panel p-6 pb-[max(1.5rem,calc(1rem+env(safe-area-inset-bottom,0px))] shadow-pop sm:rounded-3xl sm:pb-6 dark:border-nline dark:bg-carbon",
           wide ? "sm:max-w-2xl" : "sm:max-w-md",
         )}
         onClick={(e) => e.stopPropagation()}

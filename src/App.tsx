@@ -75,11 +75,11 @@ function Shell() {
   const goalPct = todayLog ? Math.min(100, Math.round((todayLog.minutes / data.settings.dailyGoalMinutes) * 100)) : 0;
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative flex h-full h-[100dvh] w-full max-w-[100vw] flex-col overflow-hidden">
       <div className="ambient" />
 
-      {/* top bar */}
-      <header className="sticky top-0 z-30 border-b border-line bg-paper/85 backdrop-blur-md dark:border-nline dark:bg-night/85">
+      {/* top bar with iOS notch / safe-area padding */}
+      <header className="sticky top-0 z-30 flex-shrink-0 border-b border-line bg-paper/90 pt-[env(safe-area-inset-top,0px)] backdrop-blur-md dark:border-nline dark:bg-night/90">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
           <button onClick={() => nav("dashboard")} className="btn-press focus-ring flex items-center gap-2" aria-label="Fluencia home">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-pine-600 text-white"><Languages size={14} /></span>
@@ -113,7 +113,7 @@ function Shell() {
       </header>
 
       {/* sidebar (desktop) */}
-      <nav className="fixed bottom-0 left-0 top-14 z-20 hidden w-56 flex-col gap-1 border-r border-line bg-panel/70 p-3 backdrop-blur-sm lg:flex dark:border-nline dark:bg-carbon/60">
+      <nav className="fixed bottom-0 left-0 top-[calc(3.5rem+env(safe-area-inset-top,0px))] z-20 hidden w-56 flex-col gap-1 border-r border-line bg-panel/70 p-3 backdrop-blur-sm lg:flex dark:border-nline dark:bg-carbon/60">
         {NAV.map((n) => (
           <button
             key={n.id}
@@ -138,8 +138,11 @@ function Shell() {
         </div>
       </nav>
 
-      {/* main */}
-      <main className="relative z-10 pt-0 lg:pl-56">
+      {/* main view: strictly scrollable inner viewport with iOS inertia */}
+      <main
+        className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-8 lg:pl-56"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
         {route === "dashboard" && <Dashboard />}
         {route === "modules" && <Modules />}
         {route === "street" && <StreetScreen />}
@@ -150,8 +153,8 @@ function Shell() {
         {route === "settings" && <Settings />}
       </main>
 
-      {/* mobile bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-line bg-panel/95 backdrop-blur-md lg:hidden dark:border-nline dark:bg-carbon/95">
+      {/* mobile bottom nav with safe-area padding for home swipe bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-line bg-panel/95 pb-[env(safe-area-inset-bottom,0px)] backdrop-blur-md lg:hidden dark:border-nline dark:bg-carbon/95">
         <div className="mx-auto flex h-16 max-w-lg items-center justify-between px-4">
           <MobileTab active={route === "dashboard"} onClick={() => nav("dashboard")} icon={<LayoutDashboard size={19} />} label="Today" />
           <MobileTab active={route === "modules"} onClick={() => nav("modules")} icon={<BookOpen size={19} />} label="Modules" />
@@ -173,7 +176,7 @@ function Shell() {
       {/* mobile more-sheet */}
       {sheet && (
         <div className="fixed inset-0 z-40 flex items-end bg-ink/50 backdrop-blur-[2px] lg:hidden dark:bg-black/60" onClick={() => setSheet(false)}>
-          <div className="anim-rise w-full rounded-t-3xl border-t border-line bg-panel p-5 pb-8 dark:border-nline dark:bg-carbon" onClick={(e) => e.stopPropagation()}>
+          <div className="anim-rise w-full rounded-t-3xl border-t border-line bg-panel p-5 pb-[max(2rem,calc(1.5rem+env(safe-area-inset-bottom,0px)))] dark:border-nline dark:bg-carbon" onClick={(e) => e.stopPropagation()}>
             <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-line dark:bg-nline" />
             <div className="grid grid-cols-2 gap-2">
               {NAV.filter((n) => !["dashboard", "modules", "library"].includes(n.id)).map((n) => (
@@ -209,7 +212,7 @@ function MobileTab({ active, onClick, icon, label }: { active: boolean; onClick:
 
 function ToastHost({ toasts, dismiss }: { toasts: { id: number; msg: string; tone: string }[]; dismiss: (id: number) => void }) {
   return (
-    <div className="pointer-events-none fixed bottom-20 left-1/2 z-[60] flex w-full max-w-sm -translate-x-1/2 flex-col gap-2 px-4 lg:bottom-6">
+    <div className="pointer-events-none fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] left-1/2 z-[60] flex w-full max-w-sm -translate-x-1/2 flex-col gap-2 px-4 lg:bottom-6">
       {toasts.map((t) => (
         <button
           key={t.id}

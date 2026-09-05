@@ -155,9 +155,9 @@ function Runner({ config }: { config: SessionConfig }) {
   if (!item || !phrase) return null;
 
   return (
-    <div className="fixed inset-0 z-40 overflow-y-auto bg-paper dark:bg-night">
+    <div className="fixed inset-0 z-40 overflow-y-auto overscroll-y-contain bg-paper dark:bg-night" style={{ WebkitOverflowScrolling: "touch" }}>
       <div className="ambient" />
-      <div className="relative z-10 mx-auto flex min-h-full max-w-2xl flex-col px-4 py-4 sm:py-8">
+      <div className="relative z-10 mx-auto flex min-h-full max-w-2xl flex-col px-4 pt-[max(1rem,calc(0.5rem+env(safe-area-inset-top,0px)))] pb-[max(1.5rem,calc(1rem+env(safe-area-inset-bottom,0px)))] sm:py-8">
         {/* header */}
         <div className="mb-6 flex items-center gap-3">
           <button
@@ -774,9 +774,9 @@ function SummaryScreen({ summary, config, unlocked, weakIds, pmap, onClose, onWe
   const xp = useCountUp(summary.xp);
   const name = (id: string) => pmap.get(id)?.en ?? id;
   return (
-    <div className="fixed inset-0 z-40 overflow-y-auto bg-paper dark:bg-night">
+    <div className="fixed inset-0 z-40 overflow-y-auto overscroll-y-contain bg-paper dark:bg-night" style={{ WebkitOverflowScrolling: "touch" }}>
       <div className="ambient" />
-      <div className="relative z-10 mx-auto max-w-2xl px-4 py-8 sm:py-14">
+      <div className="relative z-10 mx-auto max-w-2xl px-4 pt-[max(1.5rem,calc(1rem+env(safe-area-inset-top,0px)))] pb-[max(2rem,calc(1.5rem+env(safe-area-inset-bottom,0px)))] sm:py-14">
         <div className="anim-pop text-center">
           <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-pine-600 dark:text-pine-300">{config.title} · complete</p>
           <h1 className="mt-2 font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
